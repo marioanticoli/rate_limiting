@@ -14,7 +14,7 @@ TIME_WINDOW = 60
 def greet(name):
     ip = request.remote_addr
     print(ip)
-    reqs = requests_done(ip)
+    reqs = __requests_done(ip)
     if reqs <= IP_LIMIT:
         resp = app.make_response(f'Hi {name}!')
         resp.headers["X-RateLimit-Limit"] = IP_LIMIT
@@ -27,7 +27,7 @@ def greet(name):
         return resp, 429
 
 
-def requests_done(ip_address):
+def __requests_done(ip_address):
     now = time.time()
     l = r.get(ip_address)
     if l != None:
