@@ -1,5 +1,10 @@
 from app import app
 from flask import make_response, request
+import redis
+import time
+import json
+
+r = redis.Redis(host='redis', port=6379, db=0)
 
 IP_LIMIT = 10
 
@@ -22,4 +27,13 @@ def greet(name):
 
 
 def requests_done(ip_address):
-    return 1
+    now = time.time()
+    l = r.get(ip_address)
+    if l != None:
+        l = [t for t in json.loads(l) if now - t < 60]
+    else:
+        l = []
+
+    l.append(now)
+    r.set(ip_address, json.dumps(l))
+    return len(l)
