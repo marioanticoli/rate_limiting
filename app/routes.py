@@ -7,6 +7,7 @@ import json
 r = redis.Redis(host='redis', port=6379, db=0)
 
 IP_LIMIT = 10
+TIME_WINDOW = 60
 
 
 @app.route('/greet/<string:name>', methods=['GET'])
@@ -30,10 +31,10 @@ def requests_done(ip_address):
     now = time.time()
     l = r.get(ip_address)
     if l != None:
-        l = [t for t in json.loads(l) if now - t < 60]
+        l = [t for t in json.loads(l) if now - t < TIME_WINDOW]
     else:
         l = []
 
     l.append(now)
-    r.set(ip_address, json.dumps(l))
+    r.set(ip_address, json.dumps(l), ex=TIME_WINDOW)
     return len(l)
